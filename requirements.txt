@@ -20,7 +20,7 @@ tensorflow-cpu==2.16.1
 keras==3.3.3
 
 # Loosened versioning to let pip auto-resolve matching sub-dependencies safely
-scikit-learn>=1.4.0
+scikit-learn==1.6.1
 scipy>=1.12.0
 pandas>=2.2.0
 xgboost>=2.0.0
