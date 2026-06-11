@@ -1,7 +1,7 @@
 import io
 import numpy as np
 from PIL import Image
-from .model_loader import model
+from backend.potato.app.model_loader import model
 
 class_names = [
     "Early Blight",
