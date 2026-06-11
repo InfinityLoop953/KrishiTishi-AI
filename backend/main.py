@@ -1,46 +1,44 @@
-from fastapi import FastAPI
-import pandas as pd
-from fastapi import UploadFile, File
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
-from potato.app.utils import predict_potato
+import pandas as pd
+
+# =========================
+# Potato Module
+# =========================
+from backend.potato.app.utils import predict_potato
 
 # =========================
 # Crop Module
 # =========================
-from crop.app.schema import CropInput
-from crop.app.utils import predict_crop
+from backend.crop.app.schema import CropInput
+from backend.crop.app.utils import predict_crop
 
 # =========================
 # Fertilizer Module
 # =========================
-from fertilizer.app.schema import FertilizerInput
-from fertilizer.app.model_loader import (
+from backend.fertilizer.app.schema import FertilizerInput
+from backend.fertilizer.app.model_loader import (
     load_artifacts as load_fertilizer_artifacts
 )
-from fertilizer.app.preprocess import (
+from backend.fertilizer.app.preprocess import (
     preprocess_input as fertilizer_preprocess
 )
 
 # =========================
 # Irrigation Module
 # =========================
-from irrigation.app.schema import IrrigationInput
-from irrigation.app.model_loader import (
+from backend.irrigation.app.schema import IrrigationInput
+from backend.irrigation.app.model_loader import (
     load_artifacts as load_irrigation_artifacts
 )
-from irrigation.app.preprocess import (
+from backend.irrigation.app.preprocess import (
     preprocess_input as irrigation_preprocess
 )
-
 
 # =========================
 # Load Models Once
 # =========================
 
-# Crop
-# (loaded internally by predict_crop)
-
-# Fertilizer
 (
     fert_model,
     fert_scaler,
@@ -50,7 +48,6 @@ from irrigation.app.preprocess import (
     fert_feature_names
 ) = load_fertilizer_artifacts()
 
-# Irrigation
 (
     irr_model,
     irr_scaler,
@@ -58,7 +55,9 @@ from irrigation.app.preprocess import (
     irr_feature_columns
 ) = load_irrigation_artifacts()
 
-
+# =========================
+# FastAPI App
+# =========================
 
 app = FastAPI(
     title="KrishiTrishi AI Backend",
@@ -73,12 +72,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# =========================
+# Routes
+# =========================
 
 @app.get("/")
 def home():
     return {
         "message": "KrishiTrishi Backend Running"
     }
+
 
 @app.post("/api/crop/predict")
 def crop_predict(data: CropInput):
@@ -88,7 +91,8 @@ def crop_predict(data: CropInput):
     return {
         "recommended_crop": prediction
     }
-    
+
+
 @app.post("/api/fertilizer/predict")
 def fertilizer_predict(data: FertilizerInput):
 
@@ -116,10 +120,8 @@ def fertilizer_predict(data: FertilizerInput):
     return {
         "recommended_fertilizer": fertilizer_name
     }
-    
-    
-    
-    
+
+
 @app.post("/api/irrigation/predict")
 def irrigation_predict(data: IrrigationInput):
 
@@ -147,12 +149,11 @@ def irrigation_predict(data: IrrigationInput):
             else "No Irrigation Needed"
         )
     }
-    
-    
-    
-    
-    
+
+
 @app.post("/api/potato/predict")
-async def potato_predict(file: UploadFile = File(...)):
+async def potato_predict_endpoint(file: UploadFile = File(...)):
+
     image_bytes = await file.read()
+
     return predict_potato(image_bytes)
