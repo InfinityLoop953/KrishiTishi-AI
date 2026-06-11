@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements from the backend folder to leverage Docker's caching layer
-COPY backend/requirements.txt ./requirements.txt
+COPY requirements.txt .
 
 # Install dependencies without caching the installation files (keeps image slim)
 RUN pip install --no-cache-dir -r requirements.txt
