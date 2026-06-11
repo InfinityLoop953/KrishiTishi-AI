@@ -14,6 +14,13 @@ from backend.irrigation.app.schema import IrrigationInput
 from backend.irrigation.app.model_loader import load_artifacts as load_irrigation_artifacts
 from backend.irrigation.app.preprocess import preprocess_input as irrigation_preprocess
 
+
+
+# for chatbot
+from backend.chatbot.schema import ChatRequest
+from backend.chatbot.gemini_service import ask_gemini
+
+
 # Global state dictionary to store models safely
 ml_models = {}
 
@@ -118,3 +125,18 @@ def irrigation_predict(data: IrrigationInput):
 async def potato_predict_endpoint(file: UploadFile = File(...)):
     image_bytes = await file.read()
     return predict_potato(image_bytes)
+
+
+
+# chatbot
+@app.post("/api/chat")
+def chatbot_endpoint(data: ChatRequest):
+    try:
+        # Pass the message to your service file
+        reply_text = ask_gemini(data.message)
+        
+        # Return it in the JSON format your gemini.html expects ({"reply": ...})
+        return {"reply": reply_text}
+        
+    except Exception as e:
+        return {"reply": f"দুঃখিত, একটি অভ্যন্তরীণ সমস্যা হয়েছে। Error: {str(e)}"}

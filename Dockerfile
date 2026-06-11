@@ -9,11 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker's caching layer
-COPY requirements.txt .
+# Copy requirements from the backend folder to leverage Docker's caching layer
+COPY backend/requirements.txt ./requirements.txt
 
 # Install dependencies without caching the installation files (keeps image slim)
-# Fix: Force installation of tf_keras alongside the requirements file
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the entire project workspace into the container's working directory (/app)
