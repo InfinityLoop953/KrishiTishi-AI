@@ -1,24 +1,26 @@
-import os
-from dotenv import load_dotenv
 from google import genai
-from google.genai import types
+import os
 
-load_dotenv()
-
-# Initialize the new standard SDK Client
-# It automatically picks up the GEMINI_API_KEY environment variable from Render
+# Initialize the modern Gemini Client
+# It automatically looks for the GEMINI_API_KEY environment variable in os.environ
 client = genai.Client()
 
-def ask_gemini(user_message: str) -> str:
-    # Set system instruction directly using the standard GenerateContentConfig
-    config = types.GenerateContentConfig(
-        system_instruction="সবসময় বাংলায় উত্তর দিবে।"
-    )
-    
-    response = client.models.generate_content(
-        model='gemini-2.5-flash',
-        contents=user_message,
-        config=config,
-    )
-    
-    return response.text
+def ask_gemini(prompt: str) -> str:
+    """
+    Sends an agricultural query to the Gemini model and returns the response.
+    """
+    try:
+        # Using the standard recommended model for text tasks
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        
+        # Return the clean text response
+        if response.text:
+            return response.text
+        return "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।"
+        
+    except Exception as e:
+        print(f"❌ Gemini API Error: {str(e)}")
+        return "দুঃখিত, এই মুহূর্তে এআই সহকারী সক্রিয় নেই। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন।"
