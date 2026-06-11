@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -47,68 +46,6 @@ async def lifespan(app: FastAPI):
     yield
     # Clean up on shutdown if necessary
     ml_models.clear()
-=======
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-
-# =========================
-# Potato Module
-# =========================
-from backend.potato.app.utils import predict_potato
-
-# =========================
-# Crop Module
-# =========================
-from backend.crop.app.schema import CropInput
-from backend.crop.app.utils import predict_crop
-
-# =========================
-# Fertilizer Module
-# =========================
-from backend.fertilizer.app.schema import FertilizerInput
-from backend.fertilizer.app.model_loader import (
-    load_artifacts as load_fertilizer_artifacts
-)
-from backend.fertilizer.app.preprocess import (
-    preprocess_input as fertilizer_preprocess
-)
-
-# =========================
-# Irrigation Module
-# =========================
-from backend.irrigation.app.schema import IrrigationInput
-from backend.irrigation.app.model_loader import (
-    load_artifacts as load_irrigation_artifacts
-)
-from backend.irrigation.app.preprocess import (
-    preprocess_input as irrigation_preprocess
-)
-
-# =========================
-# Load Models Once
-# =========================
-
-(
-    fert_model,
-    fert_scaler,
-    fert_crop_encoder,
-    fert_target_encoder,
-    fert_poly,
-    fert_feature_names
-) = load_fertilizer_artifacts()
-
-(
-    irr_model,
-    irr_scaler,
-    irr_encoder,
-    irr_feature_columns
-) = load_irrigation_artifacts()
-
-# =========================
-# FastAPI App
-# =========================
->>>>>>> 9e5fe152372282ceded9cfbc38cb01b137b0aba4
 
 app = FastAPI(
     title="KrishiTrishi AI Backend",
@@ -124,32 +61,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< HEAD
-=======
-# =========================
-# Routes
-# =========================
-
->>>>>>> 9e5fe152372282ceded9cfbc38cb01b137b0aba4
 @app.get("/")
 def home():
     return {"message": "KrishiTrishi Backend Running Successfully"}
 
-
 @app.post("/api/crop/predict")
 def crop_predict(data: CropInput):
     prediction = predict_crop(data.model_dump())
-<<<<<<< HEAD
     return {"recommended_crop": prediction}
     
-=======
-
-    return {
-        "recommended_crop": prediction
-    }
-
-
->>>>>>> 9e5fe152372282ceded9cfbc38cb01b137b0aba4
 @app.post("/api/fertilizer/predict")
 def fertilizer_predict(data: FertilizerInput):
     # Fetch models from the lifespan state
@@ -169,21 +89,8 @@ def fertilizer_predict(data: FertilizerInput):
     prediction = fert["model"].predict(processed)[0]
     fertilizer_name = fert["target_encoder"].inverse_transform([prediction])[0]
 
-<<<<<<< HEAD
     return {"recommended_fertilizer": fertilizer_name}
     
-=======
-    fertilizer_name = (
-        fert_target_encoder
-        .inverse_transform([prediction])[0]
-    )
-
-    return {
-        "recommended_fertilizer": fertilizer_name
-    }
-
-
->>>>>>> 9e5fe152372282ceded9cfbc38cb01b137b0aba4
 @app.post("/api/irrigation/predict")
 def irrigation_predict(data: IrrigationInput):
     # Fetch models from the lifespan state
@@ -206,15 +113,8 @@ def irrigation_predict(data: IrrigationInput):
         "probability": float(probability),
         "message": "Irrigation Needed" if prediction == 1 else "No Irrigation Needed"
     }
-<<<<<<< HEAD
-    
-=======
 
-
->>>>>>> 9e5fe152372282ceded9cfbc38cb01b137b0aba4
 @app.post("/api/potato/predict")
 async def potato_predict_endpoint(file: UploadFile = File(...)):
-
     image_bytes = await file.read()
-
     return predict_potato(image_bytes)
