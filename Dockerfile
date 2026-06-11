@@ -17,13 +17,11 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir tensorflow-cpu==2.20.0 keras==3.14.1 && \
     pip install --no-cache-dir -r requirements.txt
 
-# Step 6: Copy your backend folder and root main.py into the container
+# Step 6: Copy your backend folder structure into the container
 COPY backend/ ./backend/
-COPY main.py .
 
 # Step 7: Expose the port Render expects web applications to use
 EXPOSE 10000
 
-# Step 8: Start your FastAPI application using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "10000"]
-
+# Step 8: Start your FastAPI application using Uvicorn from inside the backend directory
+CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "10000"]
