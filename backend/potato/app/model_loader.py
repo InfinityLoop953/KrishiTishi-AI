@@ -2,24 +2,29 @@ import os
 import tensorflow as tf
 from keras.src.models.functional import Functional
 
-# Base path calculation
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-MODEL_PATH = os.path.join(BASE_DIR, "artifacts", "potato_disease_model.keras")
+# 1. This goes up 3 levels from model_loader.py to reach /app (the root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-print(f"🤖 Loading Potato Model from: {MODEL_PATH}")
+# 2. MATCH EXACT TREE: backend -> potato -> artifacts -> model
+MODEL_PATH = os.path.join(BASE_DIR, "backend", "potato", "artifacts", "potato_disease_model.keras")
+
+print(f"🤖 Absolute lookup path calculated: {MODEL_PATH}")
+
+if not os.path.exists(MODEL_PATH):
+    print(f"🚨 FOLDER TREE MISMATCH! Content of base dir: {os.listdir(BASE_DIR)}")
+    raise FileNotFoundError(f"Could not find model file at {MODEL_PATH}")
 
 try:
-    # We pass 'Functional' in custom_objects to bridge version disparities
+    print("🤖 Loading Potato Model with custom layer dictionary...")
     model = tf.keras.models.load_model(
         MODEL_PATH, 
         custom_objects={"Functional": Functional}
     )
-    print("✅ Potato Model loaded successfully with custom deserialization!")
+    print("✅ Potato Model loaded successfully!")
 except Exception as e:
-    print(f"⚠️ Standard load failed, trying alternate layer map...")
-    # Secondary fallback mapping for older sequential/functional definitions
+    print(f"⚠️ Primary map failed, attempting fallback...")
     model = tf.keras.models.load_model(
         MODEL_PATH, 
         custom_objects={"Functional": tf.keras.Model}
     )
-    print("✅ Potato Model loaded successfully via fallback mapper!")
+    print("✅ Potato Model loaded successfully via fallback!")
