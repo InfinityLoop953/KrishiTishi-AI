@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 
 # Install dependencies without caching the installation files (keeps image slim)
-RUN pip install --no-cache-dir -r requirements.txt
+# Fix: Force installation of tf_keras alongside the requirements file
+RUN pip install --no-cache-dir -r requirements.txt tf_keras
 
 # Copy the entire project workspace into the container's working directory (/app)
 COPY . .
