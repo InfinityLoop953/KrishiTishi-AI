@@ -1,10 +1,11 @@
 import os
 import tensorflow as tf
-from keras.src.models.functional import Functional
-from keras.src.saving import serialization_lib
+import keras
 
-# 1. Register 'Functional' globally in the Keras serialization engine
-serialization_lib.register_keras_serializable(package="keras.src.models.functional")(Functional)
+# 1. Use the proper, public Keras 3 API to register the structural class
+@keras.saving.register_keras_serializable(package="Custom")
+class FunctionalBypass(keras.Model):
+    pass
 
 # 2. Match exact container paths
 MODEL_PATH = "/app/backend/potato/artifacts/potato_disease_model.keras"
@@ -16,22 +17,22 @@ if not os.path.exists(MODEL_PATH):
 print(f"🤖 Loading Potato Model from verified location: {MODEL_PATH}")
 
 try:
-    # Pass a robust custom object mapping array to rebuild the sequential wrapper safely
+    # Pass structural definitions safely via custom_objects
     model = tf.keras.models.load_model(
         MODEL_PATH,
         custom_objects={
-            "Functional": Functional,
-            "functional": Functional
+            "Functional": FunctionalBypass,
+            "functional": FunctionalBypass
         },
-        compile=False # Prevents optimizer compilation structure errors
+        compile=False  # Skips training/optimizer compilation metrics
     )
     print("✅ Potato Model and sub-layers loaded flawlessly!")
 
 except Exception as e:
     print(f"⚠️ Primary deserialization mapping failed. error: {str(e)}")
-    print("🔄 Initializing deep structural bypass reconstruction...")
+    print("🔄 Initializing native fallback reconstruction...")
     
-    # Ultimate fallback: Force map over the root Keras Model structure
+    # Absolute generic fallback mapping
     model = tf.keras.models.load_model(
         MODEL_PATH,
         custom_objects={
@@ -40,4 +41,4 @@ except Exception as e:
         },
         compile=False
     )
-    print("✅ Potato Model successfully salvaged via fallback definition maps!")
+    print("✅ Potato Model successfully salvaged via native fallback maps!")
